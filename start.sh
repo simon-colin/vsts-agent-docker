@@ -53,24 +53,17 @@ export VSO_AGENT_IGNORE=AZP_TOKEN,AZP_TOKEN_FILE
 
 print_header "1. Determining matching Azure Pipelines agent..."
 
-AZP_AGENT_RESPONSE=$(curl -LsS \
-  -u user:$(cat "$AZP_TOKEN_FILE") \
-  -H 'Accept:application/json;api-version=3.0-preview' \
-  "$AZP_URL/_apis/distributedtask/packages/agent?platform=linux-x64")
+# AZP_AGENTPACKAGE_FILE=$(echo 'vsts-agent-linux-x64-2.154.3.tar.gz')
+AZP_AGENTPACKAGE_FILE=$(echo '{your_agent_file}')
 
-if echo "$AZP_AGENT_RESPONSE" | jq . >/dev/null 2>&1; then
-  AZP_AGENTPACKAGE_URL=$(echo "$AZP_AGENT_RESPONSE" \
-    | jq -r '.value | map([.version.major,.version.minor,.version.patch,.downloadUrl]) | sort | .[length-1] | .[3]')
-fi
-
-if [ -z "$AZP_AGENTPACKAGE_URL" -o "$AZP_AGENTPACKAGE_URL" == "null" ]; then
+if [ -o "$AZP_AGENTPACKAGE_FILE" == "null" ]; then
   echo 1>&2 "error: could not determine a matching Azure Pipelines agent - check that account '$AZP_URL' is correct and the token is valid for that account"
   exit 1
 fi
 
-print_header "2. Downloading and installing Azure Pipelines agent..."
+print_header "2. Installing Azure Pipelines agent..."
  
-curl -LsS $AZP_AGENTPACKAGE_URL | tar -xz & wait $!
+tar zxvf $AZP_AGENTPACKAGE_FILE
 
 source ./env.sh
 

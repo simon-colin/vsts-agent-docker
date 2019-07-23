@@ -20,6 +20,11 @@ RUN apt-get update \
 WORKDIR /azp
 
 COPY ./start.sh .
+
+# use your agent file replace `{your_agent_file}`
+# COPY ./vsts-agent-linux-x64-2.154.3.tar.gz ./agent/
+COPY ./{your_agent_file} ./agent/
+
 RUN chmod +x start.sh
 
 CMD ["./start.sh"]
